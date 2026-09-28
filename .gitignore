@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.*
+*.save
+*.backup
+Jenkinsfile.before-*
+Dockerfile.save
+Jenkinsfile.rollback-before-fix
