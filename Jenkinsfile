@@ -73,7 +73,7 @@ pipeline {
                         --memory 512m \
                         --cpus 0.5 \
                         -p ${APP_PORT}:80 \
-                        ${DOCKER_IMAGE}:build-${BUILD_NUMBER} 
+                        ${DOCKER_IMAGE}:build-${BUILD_NUMBER}
                 '''
             }
         }
@@ -118,7 +118,7 @@ pipeline {
                             docker stop ${CONTAINER_NAME} || true
                             docker rm ${CONTAINER_NAME} || true
 
-                            docker run -d \                          
+                            docker run -d \
                                  --name ${CONTAINER_NAME} \
                                  --memory 512m \
                                  --cpus 0.5 \
