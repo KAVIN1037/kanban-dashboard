@@ -42,3 +42,4 @@ Images are versioned using Jenkins build numbers:
 ```text
 daddykavin/kanban-dashboard:build-<BUILD_NUMBER>
 eof
+
