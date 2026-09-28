@@ -30,7 +30,6 @@ pipeline {
             steps {
                 sh '''
             docker build -t ${DOCKER_IMAGE}:build-${BUILD_NUMBER} .
-            docker tag ${DOCKER_IMAGE}:build-${BUILD_NUMBER} ${DOCKER_IMAGE}:${GIT_SHA}
             '''
           }
         }
