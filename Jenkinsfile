@@ -7,6 +7,7 @@ pipeline {
         CONTAINER_NAME = 'kanban-dashboard'
         APP_PORT = '80'
         DEPLOY_STARTED = 'false'
+        GIT_SHA = ''
     }
 
     stages {
@@ -14,13 +15,24 @@ pipeline {
         stage('Checkout Source') {
             steps {
                 checkout scm
+          script {
+            env.GIT_SHA = sh(
+                script: 'git rev-parse --short HEAD',
+                returnStdout: true
+            ).trim()
+
+            echo "Git SHA: ${env.GIT_SHA}"
+        }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:build-${BUILD_NUMBER} .'
-            }
+                sh '''
+            docker build -t ${DOCKER_IMAGE}:build-${BUILD_NUMBER} .
+            docker tag ${DOCKER_IMAGE}:build-${BUILD_NUMBER} ${DOCKER_IMAGE}:${GIT_SHA}
+            '''
+          }
         }
 
         stage('Registry Login and Push') {
@@ -58,8 +70,10 @@ pipeline {
 
                     docker run -d \
                         --name ${CONTAINER_NAME} \
+                        --memory 512m \
+                        --cpus 0.5 \
                         -p ${APP_PORT}:80 \
-                        ${DOCKER_IMAGE}:build-${BUILD_NUMBER}
+                        ${DOCKER_IMAGE}:build-${BUILD_NUMBER} 
                 '''
             }
         }
@@ -104,10 +118,12 @@ pipeline {
                             docker stop ${CONTAINER_NAME} || true
                             docker rm ${CONTAINER_NAME} || true
 
-                            docker run -d \
-                                --name ${CONTAINER_NAME} \
-                                -p ${APP_PORT}:80 \
-                                $ROLLBACK_IMAGE
+                            docker run -d \                          
+                                 --name ${CONTAINER_NAME} \
+                                 --memory 512m \
+                                 --cpus 0.5 \
+                                 -p ${APP_PORT}:80 \
+                                  $ROLLBACK_IMAGE
                         '''
                     }
                 } else {
